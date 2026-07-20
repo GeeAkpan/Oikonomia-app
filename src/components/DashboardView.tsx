@@ -78,7 +78,7 @@ export default function DashboardView({
     roi: p.roi
   }));
 
-  const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
+  const COLORS = ['#7C3AED', '#F43F5E', '#34D399', '#A78BFA', '#C084FC', '#FB7185', '#2DD4BF'];
 
   // Historical growth trend (aggregate data for the area chart) - round to zero if no data
   const growthTrendData = summary.assetsUnderManagement > 0 
@@ -487,18 +487,18 @@ export default function DashboardView({
                 <AreaChart data={growthTrendData}>
                   <defs>
                     <linearGradient id="colorAUM" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#7C3AED" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#34D399" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#34D399" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="name" stroke="rgba(255, 255, 255, 0.15)" fontSize={11} tickLine={false} />
                   <YAxis stroke="rgba(255, 255, 255, 0.15)" fontSize={10} tickLine={false} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#16171a', borderColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '12px' }}
+                    contentStyle={{ backgroundColor: '#221b4a', borderColor: 'rgba(124, 58, 237, 0.12)', borderRadius: '12px' }}
                     labelStyle={{ color: 'rgba(255, 255, 255, 0.6)', fontWeight: 'bold' }}
                   />
                   <Legend verticalAlign="top" height={36} iconType="circle" />
@@ -506,7 +506,7 @@ export default function DashboardView({
                     type="monotone"
                     name="AUM Deployed"
                     dataKey="AUM"
-                    stroke="#10b981"
+                    stroke="#7C3AED"
                     strokeWidth={2}
                     fillOpacity={1}
                     fill="url(#colorAUM)"
@@ -515,7 +515,7 @@ export default function DashboardView({
                     type="monotone"
                     name="Cumulative Profit"
                     dataKey="Profit"
-                    stroke="#3b82f6"
+                    stroke="#34D399"
                     strokeWidth={2}
                     fillOpacity={1}
                     fill="url(#colorProfit)"

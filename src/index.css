@@ -5,18 +5,31 @@
   --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* Premium Mint Emerald and Platinum highlights */
-  --color-emerald-500: #10b981; /* High-contrast Emerald */
-  --color-emerald-400: #34d399; /* Vibrant Mint */
-  --color-emerald-300: #6ee7b7; /* Soft Mint */
-  --color-emerald-600: #059669; /* Deep Emerald */
-  --color-emerald-950: #022c22; /* Dark Forest Slate */
-  --color-emerald-900: #064e3b; 
+  /* Custom Amethyst, Violet, Rose/Pink & Mint palette mapping */
+  --color-emerald-300: #a7f3d0; 
+  --color-emerald-400: #34D399; /* Success/Inflow: Pastel Mint */
+  --color-emerald-500: #34D399; /* Success/Inflow: Pastel Mint */
+  --color-emerald-600: #7C3AED; /* Secondary/Structure: Vibrant Violet */
+  --color-emerald-700: #6d28d9;
+  --color-emerald-900: #2e1065; /* Deep Violet shadow */
+  --color-emerald-950: #1e1b4b; /* Deeper violet/amethyst */
 
-  --color-teal-500: #06b6d4; /* Pure Cyan */
-  --color-teal-400: #22d3ee; /* Soft Cyan */
-  --color-teal-600: #0891b2; /* Deep Cyan */
-  --color-teal-950: #083344; /* Dark Cyan Shadow */
+  --color-teal-400: #7C3AED; /* Map teal to Vibrant Violet */
+  --color-teal-500: #7C3AED;
+  --color-teal-600: #6d28d9;
+  --color-teal-950: #1e1b4b;
+
+  --color-blue-400: #7C3AED; /* Map blue to Vibrant Violet */
+  --color-blue-500: #6d28d9;
+
+  --color-indigo-400: #a78bfa; /* Map indigo to soft violet */
+  --color-indigo-500: #7C3AED;
+
+  --color-zinc-950: #130F26; /* Background/Dominant: Deep Amethyst Black */
+  --color-zinc-900: #1a1538; /* Secondary/Structure background */
+  --color-zinc-850: #221c4a;
+  --color-zinc-800: #29225c;
+  --color-zinc-700: #4c3e9e;
 
   /* Fluid typography tokens using clamp with viewport-width scaling */
   --text-xs: clamp(0.6875rem, 0.65rem + 0.1875vw, 0.75rem);
@@ -31,7 +44,7 @@
 }
 
 body {
-  background-color: #090a0c;
+  background-color: #130F26; /* Background / Dominant: Deep Amethyst Black */
   color: #f3f4f6;
   font-family: var(--font-sans);
   font-size: var(--text-base);
@@ -46,12 +59,12 @@ h1, h2, h3, h4, h5, h6, .greek-display {
 
 /* Premium Minimalist Card Accents */
 .greek-border {
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
-  background-image: radial-gradient(circle at top right, rgba(16, 185, 129, 0.015), transparent);
+  border: 1px solid rgba(124, 58, 237, 0.12) !important;
+  background-image: radial-gradient(circle at top right, rgba(124, 58, 237, 0.03), transparent);
 }
 
 .greek-border-hover:hover {
-  border-color: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(124, 58, 237, 0.3) !important;
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
 }
 
@@ -90,43 +103,63 @@ h6 {
 
 /* Global Bento Grid Theme utility overrides */
 .bg-zinc-950 {
-  background-color: #090a0c !important;
+  background-color: #130F26 !important;
 }
 .bg-zinc-900 {
-  background-color: #121316 !important;
+  background-color: #1a1538 !important;
 }
 .bg-zinc-900\/30 {
-  background-color: rgba(18, 19, 22, 0.3) !important;
+  background-color: rgba(26, 21, 56, 0.3) !important;
 }
 .bg-zinc-900\/40 {
-  background-color: rgba(18, 19, 22, 0.4) !important;
+  background-color: rgba(26, 21, 56, 0.4) !important;
 }
 .bg-zinc-900\/50 {
-  background-color: rgba(18, 19, 22, 0.5) !important;
+  background-color: rgba(26, 21, 56, 0.5) !important;
 }
 .bg-zinc-900\/60 {
-  background-color: rgba(18, 19, 22, 0.6) !important;
+  background-color: rgba(26, 21, 56, 0.6) !important;
 }
 .bg-zinc-900\/80 {
-  background-color: rgba(18, 19, 22, 0.8) !important;
+  background-color: rgba(26, 21, 56, 0.8) !important;
 }
 .border-zinc-800 {
-  border-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(124, 58, 237, 0.12) !important;
 }
 .border-zinc-850 {
-  border-color: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(124, 58, 237, 0.08) !important;
 }
 .border-zinc-900 {
-  border-color: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(124, 58, 237, 0.15) !important;
 }
 .text-zinc-400 {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: rgba(244, 244, 254, 0.6) !important;
 }
 .text-zinc-500 {
-  color: rgba(255, 255, 255, 0.35) !important;
+  color: rgba(244, 244, 254, 0.45) !important;
 }
 .text-zinc-600 {
-  color: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(244, 244, 254, 0.25) !important;
+}
+
+/* Custom global overrides for specific hex codes used as background/border utilities in components */
+[class*="bg-[#090a0c]"] {
+  background-color: #130F26 !important;
+}
+[class*="bg-[#121316]"] {
+  background-color: #1a1538 !important;
+}
+[class*="bg-[#16171a]"] {
+  background-color: #221b4a !important;
+}
+[class*="bg-[#0a0b0d]"] {
+  background-color: #0d0a1c !important;
+}
+[class*="border-white/5"] {
+  border-color: rgba(124, 58, 237, 0.12) !important;
+}
+[class*="border-white/10"] {
+  border-color: rgba(124, 58, 237, 0.22) !important;
 }
 
 /* Hover overrides for interactive items */

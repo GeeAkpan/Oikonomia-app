@@ -286,7 +286,7 @@ export default function FloatingActionButton({
         <button
           id="fab-main-trigger"
           onClick={() => setIsOpen(!isOpen)}
-          className={`h-14 w-14 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-2xl flex items-center justify-center transition-all duration-300 transform active:scale-95 cursor-pointer hover:shadow-emerald-500/20 hover:shadow-lg ${
+          className={`h-14 w-14 rounded-full bg-[#F43F5E] hover:bg-[#e11d48] text-white shadow-2xl flex items-center justify-center transition-all duration-300 transform active:scale-95 cursor-pointer hover:shadow-[#F43F5E]/20 hover:shadow-lg ${
             isOpen ? 'rotate-135 bg-zinc-800 border border-white/10 hover:bg-zinc-700' : ''
           }`}
           title="Quick Access Tools"

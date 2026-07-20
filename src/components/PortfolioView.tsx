@@ -115,14 +115,14 @@ export default function PortfolioView({ portfolios, investors, role, onPostQuick
                     <AreaChart data={port.historicalPerformance}>
                       <defs>
                         <linearGradient id={`grad-${port.id}`} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={isNegative ? '#ef4444' : '#10b981'} stopOpacity={0.15} />
-                          <stop offset="95%" stopColor={isNegative ? '#ef4444' : '#10b981'} stopOpacity={0} />
+                          <stop offset="5%" stopColor={isNegative ? '#F43F5E' : '#34D399'} stopOpacity={0.15} />
+                          <stop offset="95%" stopColor={isNegative ? '#F43F5E' : '#34D399'} stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <Area
                         type="monotone"
                         dataKey="value"
-                        stroke={isNegative ? '#ef4444' : '#10b981'}
+                        stroke={isNegative ? '#F43F5E' : '#34D399'}
                         strokeWidth={1.5}
                         fillOpacity={1}
                         fill={`url(#grad-${port.id})`}

@@ -40,10 +40,10 @@ export default function Header({
     <header className="bg-[#16171a]/85 backdrop-blur-md border-b border-white/5 px-4 sm:px-8 py-3 sm:py-4 flex flex-col md:flex-row md:items-center justify-between gap-3 sticky top-0 z-40">
       {/* Title / Clock */}
       <div className="flex items-center gap-2.5 w-full md:w-auto">
-        {/* Mobile Hamburger menu - hidden as we have MobileBottomNav */}
+        {/* Mobile Hamburger menu */}
         <button
           onClick={onToggleMobileMenu}
-          className="hidden p-2 bg-[#0a0b0d] hover:bg-white/5 text-white/80 hover:text-white rounded-xl border border-white/5 cursor-pointer transition-colors flex-shrink-0"
+          className="block lg:hidden p-2 bg-[#0a0b0d] hover:bg-white/5 text-white/80 hover:text-white rounded-xl border border-white/5 cursor-pointer transition-colors flex-shrink-0"
           aria-label="Toggle Navigation Menu"
         >
           <Menu size={16} />

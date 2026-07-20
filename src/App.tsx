@@ -10,7 +10,6 @@ import WeeklyCloseView from './components/WeeklyCloseView';
 import AiAnalystView from './components/AiAnalystView';
 import TasksCalendarView from './components/TasksCalendarView';
 import FloatingActionButton from './components/FloatingActionButton';
-import MobileBottomNav from './components/MobileBottomNav';
 import { Investor, Portfolio, Transaction, Borrowing, WeeklySnapshot, Task, CalendarEvent, Notification, FinancialSummary, UserRole } from './types';
 
 export default function App() {
@@ -358,7 +357,7 @@ export default function App() {
         />
 
         {/* View container */}
-        <main className="flex-grow overflow-y-auto px-6 py-6 max-w-7xl w-full mx-auto pb-24">
+        <main className="flex-grow overflow-y-auto px-6 py-6 max-w-7xl w-full mx-auto pb-12">
           {renderActiveView()}
         </main>
       </div>
@@ -371,15 +370,6 @@ export default function App() {
         onAddInvestor={handleAddInvestor}
         onPostTransaction={handlePostTransaction}
         onPostBorrowing={handlePostBorrowing}
-      />
-
-      {/* Immersive Mobile Bottom Tab Bar */}
-      <MobileBottomNav
-        activeTab={activeView}
-        setActiveTab={setActiveView}
-        role={role}
-        onResetState={handleResetState}
-        currentMode={dbMode}
       />
     </div>
   );

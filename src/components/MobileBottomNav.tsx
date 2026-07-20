@@ -1,7 +1,4 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-
-const MotionDiv = motion.div;
 import {
   LayoutDashboard,
   Users,
@@ -127,26 +124,18 @@ export default function MobileBottomNav({
       </div>
 
       {/* Swipe Drawer for Accessory Tabs */}
-      <AnimatePresence>
-        {drawerOpen && (
-          <>
-            {/* Backdrop Overlay */}
-            <MotionDiv
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setDrawerOpen(false)}
-              className="fixed inset-0 bg-black/75 backdrop-blur-sm z-45 lg:hidden"
-            />
+      {drawerOpen && (
+        <>
+          {/* Backdrop Overlay */}
+          <div
+            onClick={() => setDrawerOpen(false)}
+            className="fixed inset-0 bg-black/75 backdrop-blur-sm z-45 lg:hidden transition-opacity duration-300 animate-fade-in"
+          />
 
-            {/* Slide-Up Bottom Drawer */}
-            <MotionDiv
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="fixed bottom-0 inset-x-0 bg-[#16171a] border-t border-white/5 rounded-t-[2.5rem] z-50 lg:hidden pb-12 max-h-[85vh] overflow-y-auto flex flex-col shadow-2xl"
-            >
+          {/* Slide-Up Bottom Drawer */}
+          <div
+            className="fixed bottom-0 inset-x-0 bg-[#16171a] border-t border-white/5 rounded-t-[2.5rem] z-50 lg:hidden pb-12 max-h-[85vh] overflow-y-auto flex flex-col shadow-2xl transition-transform duration-300 animate-slide-up"
+          >
               {/* Drag Handle & Close */}
               <div className="flex items-center justify-between p-6 pb-2">
                 <div className="flex flex-col items-start">
@@ -219,15 +208,14 @@ export default function MobileBottomNav({
                 </div>
               )}
 
-              {/* Quick Info Bar in Sheet */}
-              <div className="mt-4 px-6 pt-4 border-t border-white/5 mx-6 flex items-center justify-between text-[10px] font-mono text-white/30">
-                <span>Secure Mobile Client</span>
-                <span>SEC-ALPHA • {role}</span>
-              </div>
-            </MotionDiv>
-          </>
-        )}
-      </AnimatePresence>
+            {/* Quick Info Bar in Sheet */}
+            <div className="mt-4 px-6 pt-4 border-t border-white/5 mx-6 flex items-center justify-between text-[10px] font-mono text-white/30">
+              <span>Secure Mobile Client</span>
+              <span>SEC-ALPHA • {role}</span>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }

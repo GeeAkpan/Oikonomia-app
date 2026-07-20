@@ -1,7 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-
-const MotionDiv = motion.div;
 import {
   Clock,
   Search,
@@ -214,20 +211,16 @@ export default function ActivityTimeline({ transactions, investors }: ActivityTi
           </div>
         ) : (
           <div className="relative pl-6 border-l border-white/5 space-y-6 ml-3">
-            <AnimatePresence initial={false}>
-              {filteredTimeline.map((item, index) => {
-                const isPositive = ['Deposit', 'Profit'].includes(item.type);
-                const isNegative = ['Loss', 'Expense', 'Withdrawal'].includes(item.type);
+            {filteredTimeline.map((item, index) => {
+              const isPositive = ['Deposit', 'Profit'].includes(item.type);
+              const isNegative = ['Loss', 'Expense', 'Withdrawal'].includes(item.type);
 
-                return (
-                  <MotionDiv
-                    key={item.id}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -15 }}
-                    transition={{ duration: 0.25, delay: Math.min(index * 0.04, 0.3) }}
-                    className="relative group"
-                  >
+              return (
+                <div
+                  key={item.id}
+                  className="relative group transition-all duration-300 animate-fade-in"
+                  style={{ animationDelay: `${Math.min(index * 40, 300)}ms` }}
+                >
                     {/* Glowing dot on the timeline connector */}
                     <span className="absolute -left-[31px] top-4 h-2.5 w-2.5 rounded-full border border-zinc-950 bg-zinc-800 group-hover:scale-125 group-hover:bg-emerald-500 transition-all duration-300 z-10" />
 
@@ -308,10 +301,9 @@ export default function ActivityTimeline({ transactions, investors }: ActivityTi
                         </button>
                       </div>
                     </div>
-                  </MotionDiv>
-                );
-              })}
-            </AnimatePresence>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

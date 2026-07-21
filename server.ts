@@ -1,7 +1,6 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
-import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import {
   initialInvestors,
@@ -15,7 +14,9 @@ import {
 } from './src/data/initialState.js';
 
 const PORT = 3000;
-const DB_FILE = path.join(process.cwd(), 'db.json');
+const DB_FILE = process.env.VERCEL
+  ? path.join('/tmp', 'db.json')
+  : path.join(process.cwd(), 'db.json');
 
 // Initialize local JSON DB if not exists (Defaults to clean slate for actual use)
 function getInitialState() {
@@ -55,6 +56,12 @@ function getDemoState() {
 
 function loadState() {
   try {
+    if (process.env.VERCEL && !fs.existsSync(DB_FILE)) {
+      const bundledDb = path.join(process.cwd(), 'db.json');
+      if (fs.existsSync(bundledDb)) {
+        fs.writeFileSync(DB_FILE, fs.readFileSync(bundledDb, 'utf-8'), 'utf-8');
+      }
+    }
     if (fs.existsSync(DB_FILE)) {
       const raw = fs.readFileSync(DB_FILE, 'utf-8');
       return JSON.parse(raw);
@@ -95,9 +102,8 @@ function getGeminiClient() {
   return aiClient;
 }
 
-async function startServer() {
-  const app = express();
-  app.use(express.json());
+const app = express();
+app.use(express.json());
 
   // API - Health check
   app.get('/api/health', (req, res) => {
@@ -626,24 +632,30 @@ Please respond in professional, friendly display typography. Include markdown bu
     }
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa'
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+  // Vite middleware or static serving depending on environment
+  if (!process.env.VERCEL) {
+    const startDevOrProdServer = async () => {
+      if (process.env.NODE_ENV !== 'production') {
+        const { createServer: createViteServer } = await import('vite');
+        const vite = await createViteServer({
+          server: { middlewareMode: true },
+          appType: 'spa'
+        });
+        app.use(vite.middlewares);
+      } else {
+        const distPath = path.join(process.cwd(), 'dist');
+        app.use(express.static(distPath));
+        app.get('*', (req, res) => {
+          res.sendFile(path.join(distPath, 'index.html'));
+        });
+      }
+
+      app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+      });
+    };
+
+    startDevOrProdServer();
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-}
-
-startServer();
+export default app;

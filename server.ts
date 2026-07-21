@@ -60,18 +60,21 @@ function loadState() {
       const bundledDb = path.join(process.cwd(), 'db.json');
       if (fs.existsSync(bundledDb)) {
         fs.writeFileSync(DB_FILE, fs.readFileSync(bundledDb, 'utf-8'), 'utf-8');
+      } else {
+        // Fallback to initial state if db.json is missing in Vercel bundle
+        fs.writeFileSync(DB_FILE, JSON.stringify(getInitialState(), null, 2), 'utf-8');
       }
     }
-    if (fs.existsSync(DB_FILE)) {
-      const raw = fs.readFileSync(DB_FILE, 'utf-8');
-      return JSON.parse(raw);
+    if (!fs.existsSync(DB_FILE)) {
+      // Create local initial DB if it does not exist
+      fs.writeFileSync(DB_FILE, JSON.stringify(getInitialState(), null, 2), 'utf-8');
     }
+    const raw = fs.readFileSync(DB_FILE, 'utf-8');
+    return JSON.parse(raw);
   } catch (e) {
     console.error('Failed to load DB file, using initial state:', e);
+    return getInitialState();
   }
-  const state = getInitialState();
-  saveState(state);
-  return state;
 }
 
 function saveState(state: any) {

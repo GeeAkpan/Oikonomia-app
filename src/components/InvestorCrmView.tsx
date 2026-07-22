@@ -23,13 +23,25 @@ interface InvestorCrmViewProps {
   portfolios: Portfolio[];
   transactions: Transaction[];
   onAddInvestor: (investorData: any) => void;
+  onUpdateInvestor: (id: string, investorData: any) => void;
+  onDeleteInvestor: (id: string) => void;
   role: string;
 }
 
-export default function InvestorCrmView({ investors, portfolios, transactions, onAddInvestor, role }: InvestorCrmViewProps) {
+export default function InvestorCrmView({
+  investors,
+  portfolios,
+  transactions,
+  onAddInvestor,
+  onUpdateInvestor,
+  onDeleteInvestor,
+  role
+}: InvestorCrmViewProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedInvestor, setSelectedInvestor] = useState<Investor | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Add Investor Form State
   const [newInvName, setNewInvName] = useState('');
@@ -41,6 +53,18 @@ export default function InvestorCrmView({ investors, portfolios, transactions, o
   const [newInvDeposit, setNewInvDeposit] = useState('1000000');
   const [newInvNotes, setNewInvNotes] = useState('');
   const [newInvKyc, setNewInvKyc] = useState<'Pending' | 'Verified'>('Pending');
+
+  // Edit Investor Form State
+  const [editInvName, setEditInvName] = useState('');
+  const [editInvEmail, setEditInvEmail] = useState('');
+  const [editInvPhone, setEditInvPhone] = useState('');
+  const [editInvRisk, setEditInvRisk] = useState<'Low' | 'Medium' | 'High'>('Medium');
+  const [editInvRoi, setEditInvRoi] = useState('25');
+  const [editInvDuration, setEditInvDuration] = useState('12');
+  const [editInvNotes, setEditInvNotes] = useState('');
+  const [editInvKyc, setEditInvKyc] = useState<'Pending' | 'Verified' | 'Rejected'>('Pending');
+  const [editInvStatus, setEditInvStatus] = useState<'Active' | 'Pending' | 'Completed' | 'Suspended'>('Active');
+  const [editAllocations, setEditAllocations] = useState<{ [portId: string]: number }>({});
 
   // Allocation splits across active portfolios (initially 50/50 Forex/Futures)
   const [allocations, setAllocations] = useState<{ [portId: string]: number }>({
@@ -54,6 +78,7 @@ export default function InvestorCrmView({ investors, portfolios, transactions, o
   });
 
   const totalAllocation = Object.values(allocations).reduce((sum, val) => sum + val, 0);
+  const editTotalAllocation = Object.values(editAllocations).reduce((sum, val) => sum + val, 0);
 
   const formatNaira = (value: number) => {
     return new Intl.NumberFormat('en-NG', {
@@ -112,6 +137,57 @@ export default function InvestorCrmView({ investors, portfolios, transactions, o
       stocks: 0
     });
     setShowAddForm(false);
+  };
+
+  const handleEditAllocChange = (portId: string, val: string) => {
+    const num = parseInt(val) || 0;
+    setEditAllocations({
+      ...editAllocations,
+      [portId]: num
+    });
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editInvName || !editInvEmail) {
+      alert('Name and Email are required.');
+      return;
+    }
+    const editTotalAlloc = Object.values(editAllocations).reduce((sum, val) => sum + val, 0);
+    if (editTotalAlloc !== 100) {
+      alert(`Asset allocations must total exactly 100%. Current is ${editTotalAlloc}%`);
+      return;
+    }
+
+    onUpdateInvestor(selectedInvestor!.id, {
+      name: editInvName,
+      email: editInvEmail,
+      phone: editInvPhone,
+      riskProfile: editInvRisk,
+      targetRoi: parseFloat(editInvRoi),
+      duration: parseInt(editInvDuration),
+      notes: editInvNotes,
+      kycStatus: editInvKyc,
+      status: editInvStatus,
+      allocation: editAllocations
+    });
+
+    // Update selected investor state so that the sidebar/detail reflects changes immediately
+    setSelectedInvestor({
+      ...selectedInvestor!,
+      name: editInvName,
+      email: editInvEmail,
+      phone: editInvPhone,
+      riskProfile: editInvRisk,
+      targetRoi: parseFloat(editInvRoi),
+      duration: parseInt(editInvDuration),
+      notes: editInvNotes,
+      kycStatus: editInvKyc,
+      status: editInvStatus,
+      allocation: editAllocations
+    });
+
+    setShowEditForm(false);
   };
 
   const filteredInvestors = investors.filter(
@@ -362,6 +438,44 @@ export default function InvestorCrmView({ investors, portfolios, transactions, o
                   "{selectedInvestor.notes || 'No notes on record.'}"
                 </p>
               </div>
+
+              {/* Edit & Delete Actions */}
+              {['Owner', 'Admin', 'InvestmentManager'].includes(role) && (
+                <div className="flex items-center gap-3 pt-4 border-t border-zinc-800">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditInvName(selectedInvestor.name);
+                      setEditInvEmail(selectedInvestor.email);
+                      setEditInvPhone(selectedInvestor.phone || '');
+                      setEditInvRisk(selectedInvestor.riskProfile);
+                      setEditInvRoi(selectedInvestor.targetRoi.toString());
+                      setEditInvDuration(selectedInvestor.duration.toString());
+                      setEditInvNotes(selectedInvestor.notes || '');
+                      setEditInvKyc(selectedInvestor.kycStatus);
+                      setEditInvStatus(selectedInvestor.status);
+                      
+                      const initialAllocs: { [pId: string]: number } = {};
+                      portfolios.forEach(p => {
+                        initialAllocs[p.id] = selectedInvestor.allocation[p.id] || 0;
+                      });
+                      setEditAllocations(initialAllocs);
+                      
+                      setShowEditForm(true);
+                    }}
+                    className="flex-1 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white text-xs font-bold rounded-xl border border-zinc-700 transition-colors cursor-pointer text-center"
+                  >
+                    Edit Profile
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="px-3.5 py-2 bg-red-950/40 hover:bg-red-900/30 text-red-400 hover:text-red-300 text-xs font-bold rounded-xl border border-red-900/40 transition-colors cursor-pointer text-center"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="py-12 text-center text-xs text-zinc-500 flex flex-col items-center justify-center gap-3">
@@ -538,6 +652,226 @@ export default function InvestorCrmView({ investors, portfolios, transactions, o
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showEditForm && selectedInvestor && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl p-6">
+            <div className="flex items-center justify-between pb-4 border-b border-zinc-800 mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-white font-sans">Edit Investor Profile</h3>
+                <p className="text-xs text-zinc-500">Update private investor record and target portfolio allocations</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowEditForm(false)}
+                className="p-1 hover:bg-zinc-850 rounded-lg text-zinc-400 hover:text-white"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="space-y-5">
+              {/* Profile Details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Chidi Egwu"
+                    value={editInvName}
+                    onChange={(e) => setEditInvName(e.target.value)}
+                    className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-full"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="e.g. chidi@example.ng"
+                    value={editInvEmail}
+                    onChange={(e) => setEditInvEmail(e.target.value)}
+                    className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-full"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Phone Line</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. +234 803 000 0000"
+                    value={editInvPhone}
+                    onChange={(e) => setEditInvPhone(e.target.value)}
+                    className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-full"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Risk Rating</label>
+                  <select
+                    value={editInvRisk}
+                    onChange={(e: any) => setEditInvRisk(e.target.value)}
+                    className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 w-full"
+                  >
+                    <option value="Low">Low Risk (Preservation)</option>
+                    <option value="Medium">Medium Risk (Balanced)</option>
+                    <option value="High">High Risk (Aggressive)</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Expected ROI (%)</label>
+                  <input
+                    type="number"
+                    value={editInvRoi}
+                    onChange={(e) => setEditInvRoi(e.target.value)}
+                    className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 w-full"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Duration (Months)</label>
+                  <input
+                    type="number"
+                    value={editInvDuration}
+                    onChange={(e) => setEditInvDuration(e.target.value)}
+                    className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 w-full"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Account Status</label>
+                  <select
+                    value={editInvStatus}
+                    onChange={(e: any) => setEditInvStatus(e.target.value)}
+                    className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 w-full"
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Suspended">Suspended</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">KYC Onboarding status</label>
+                  <select
+                    value={editInvKyc}
+                    onChange={(e: any) => setEditInvKyc(e.target.value)}
+                    className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 w-full"
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Verified">Verified</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Dynamic Capital Allocation Slider Block */}
+              <div className="border border-zinc-850 p-4 rounded-xl bg-zinc-900/40 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold font-mono text-zinc-300 uppercase tracking-wider">
+                    Capital Allocation Splits (Total: {editTotalAllocation}%)
+                  </h4>
+                  <span
+                    className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
+                      editTotalAllocation === 100 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
+                    }`}
+                  >
+                    {editTotalAllocation === 100 ? '✓ Ready (100%)' : `Requires exactly 100%`}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {portfolios.map((port) => (
+                    <div key={port.id} className="flex items-center justify-between bg-zinc-950 p-2.5 rounded-lg border border-zinc-850">
+                      <span className="text-xs text-zinc-300 truncate">{port.name}</span>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={editAllocations[port.id] || 0}
+                          onChange={(e) => handleEditAllocChange(port.id, e.target.value)}
+                          className="w-12 bg-zinc-900 border border-zinc-800 rounded text-center text-xs text-white py-0.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        />
+                        <span className="text-xs text-zinc-500 font-mono">%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Manager Notes</label>
+                <textarea
+                  value={editInvNotes}
+                  onChange={(e) => setEditInvNotes(e.target.value)}
+                  placeholder="Notes about risk tolerances, communication frequencies..."
+                  className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-full h-16 resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3.5 border-t border-zinc-800 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowEditForm(false)}
+                  className="px-4 py-2 bg-zinc-900 hover:bg-zinc-850 text-xs text-zinc-400 hover:text-white rounded-lg border border-zinc-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editTotalAllocation !== 100}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-xs font-bold text-white rounded-lg shadow-lg shadow-emerald-900/20 transition-colors cursor-pointer"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && selectedInvestor && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-zinc-950 border border-red-900/40 rounded-2xl w-full max-w-md shadow-2xl p-6">
+            <div className="flex items-start gap-3.5 mb-4">
+              <div className="p-3 bg-red-950/50 rounded-xl border border-red-900/30 text-red-400">
+                <ShieldAlert size={20} />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-white font-sans">Delete Investor Registry Entry</h3>
+                <p className="text-xs text-zinc-400 mt-1">
+                  Are you absolutely sure you want to remove <strong className="text-white">{selectedInvestor.name}</strong> from the investment registry?
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-zinc-900/50 border border-zinc-850 p-3.5 rounded-xl text-[11px] text-zinc-500 font-mono space-y-2 mb-6">
+              <p>• Removing this investor will delete their registry profile permanently.</p>
+              <p>• Associated historical transaction ledgers referencing this investor will remain in the database to preserve double-entry audit history, but their name will no longer show up in registry queries.</p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 bg-zinc-900 hover:bg-zinc-850 text-xs text-zinc-400 hover:text-white rounded-lg border border-zinc-800 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onDeleteInvestor(selectedInvestor.id);
+                  setSelectedInvestor(null);
+                  setShowDeleteConfirm(false);
+                }}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-xs font-bold text-white rounded-lg shadow-lg shadow-red-900/20 transition-colors cursor-pointer"
+              >
+                Confirm Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

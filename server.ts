@@ -403,6 +403,55 @@ app.use(express.json());
     res.json({ success: true, investor: newInvestor });
   });
 
+  // API - Update investor
+  app.put('/api/investors/:id', (req, res) => {
+    const state = loadState();
+    const { id } = req.params;
+    const investorData = req.body;
+
+    const index = state.investors.findIndex((i: any) => i.id === id);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Investor not found' });
+    }
+
+    const existingInvestor = state.investors[index];
+    const updatedInvestor = {
+      ...existingInvestor,
+      name: investorData.name !== undefined ? investorData.name : existingInvestor.name,
+      email: investorData.email !== undefined ? investorData.email : existingInvestor.email,
+      phone: investorData.phone !== undefined ? investorData.phone : existingInvestor.phone,
+      status: investorData.status !== undefined ? investorData.status : existingInvestor.status,
+      riskProfile: investorData.riskProfile !== undefined ? investorData.riskProfile : existingInvestor.riskProfile,
+      targetRoi: investorData.targetRoi !== undefined ? parseFloat(investorData.targetRoi) : existingInvestor.targetRoi,
+      duration: investorData.duration !== undefined ? parseInt(investorData.duration) : existingInvestor.duration,
+      notes: investorData.notes !== undefined ? investorData.notes : existingInvestor.notes,
+      kycStatus: investorData.kycStatus !== undefined ? investorData.kycStatus : existingInvestor.kycStatus,
+      allocation: investorData.allocation !== undefined ? investorData.allocation : existingInvestor.allocation
+    };
+
+    state.investors[index] = updatedInvestor;
+    saveState(state);
+    res.json({ success: true, investor: updatedInvestor });
+  });
+
+  // API - Delete investor
+  app.delete('/api/investors/:id', (req, res) => {
+    const state = loadState();
+    const { id } = req.params;
+
+    const index = state.investors.findIndex((i: any) => i.id === id);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Investor not found' });
+    }
+
+    state.investors.splice(index, 1);
+    // Clean up their transactions to maintain ledger/cash accuracy
+    state.transactions = state.transactions.filter((tx: any) => tx.investorId !== id);
+
+    saveState(state);
+    res.json({ success: true, message: 'Investor successfully deleted from registry.' });
+  });
+
   // API - Create Internal Borrowing
   app.post('/api/borrowings', (req, res) => {
     const state = loadState();

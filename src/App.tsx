@@ -131,6 +131,32 @@ export default function App() {
     }
   };
 
+  const handleUpdateInvestor = async (id: string, investorData: any) => {
+    try {
+      const res = await fetch(`/api/investors/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(investorData)
+      });
+      if (!res.ok) throw new Error('Failed to update investor profile.');
+      await fetchState();
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
+
+  const handleDeleteInvestor = async (id: string) => {
+    try {
+      const res = await fetch(`/api/investors/${id}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) throw new Error('Failed to delete investor from registry.');
+      await fetchState();
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
+
   const handlePostTransaction = async (txData: any) => {
     try {
       const res = await fetch('/api/transactions', {
@@ -238,6 +264,8 @@ export default function App() {
             portfolios={portfolios}
             transactions={transactions}
             onAddInvestor={handleAddInvestor}
+            onUpdateInvestor={handleUpdateInvestor}
+            onDeleteInvestor={handleDeleteInvestor}
             role={role}
           />
         );

@@ -3,7 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>Godswill Enterprise Asset & Liquidity Management System</title>
+    <script>
+      (function() {
+        var isExtensionError = function(msg) {
+          if (!msg) return false;
+          var str = String(msg).toLowerCase();
+          return str.includes('metamask') ||
+                 str.includes('cannot create proxy with a non-object') ||
+                 str.includes('failed to connect to metamask') ||
+                 str.includes('ethereum');
+        };
+
+        window.addEventListener('error', function(e) {
+          if (isExtensionError(e.message) || isExtensionError(e.filename)) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(e) {
+          var reason = e.reason;
+          var msg = typeof reason === 'string' ? reason : (reason && reason.message) || '';
+          if (isExtensionError(msg)) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
